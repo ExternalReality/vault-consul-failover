@@ -48,10 +48,10 @@ setup_consul() {
 setup_vault() {
 	mkdir -p /etc/vault.d
 
-	sudo chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
-	sudo chown root:vault /opt/vault/tls/vault-key.pem
-	sudo chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
-	sudo chmod 0640 /opt/vault/tls/vault-key.pem
+	chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	chown root:vault /opt/vault/tls/vault-key.pem
+	chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	chmod 0640 /opt/vault/tls/vault-key.pem
 
 	echo "${vault_config}" | base64 -d > /etc/vault.d/vault.hcl
 }
@@ -59,6 +59,11 @@ setup_vault() {
 configure_consul_vault() {
 	echo "${vault_policy}" | base64 -d > /tmp/vault_service_policy.hcl
 	consul acl policy create -name vault-service -rules @/tmp/vault_service_policy.hcl}
+}
+
+start_vault_service() {
+	systemctl enable vault.service
+	systemctl start vault.service
 }
 
 setup_nginx() {
@@ -79,9 +84,12 @@ setup_deps
 
 setup_nginx
 setup_consul
+setup_vault
+configure_consul_vault
 
 start_service "consul"
 start_service "nomad"
+start_vault_service
 
 # nomad and consul service is type simple and might not be up and running just yet.
 sleep 10
