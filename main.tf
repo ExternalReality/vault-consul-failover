@@ -84,7 +84,6 @@ resource "hcp_consul_cluster_root_token" "token" {
 
 module "aws_ec2_consul_client" {
   source  = "./hcp-vault-ec2-client/"
-  version = "~> 0.7.0"
 
   subnet_id                = module.vpc.public_subnets[0]
   security_group_id        = module.aws_hcp_consul.security_group_id

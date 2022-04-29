@@ -70,6 +70,8 @@ resource "aws_instance" "nomad_host" {
       })),
       hashicups  = base64encode(file("${path.module}/templates/hashicups.nomad")),
       nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
+      vault_policy = base64encode(file("${path.module}/templates/vault-service-policy.hcl")),
+      vault_config = base64encode(file("${path.module}/templates/vault.hcl")),
       vpc_cidr   = var.vpc_cidr
     })),
   })

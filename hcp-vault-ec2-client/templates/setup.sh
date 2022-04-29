@@ -16,7 +16,7 @@ setup_deps () {
   apt update -qy
 	version="${consul_version}"
 	consul_package="consul-enterprise="$${version:1}"*"
-	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx
+	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx vault-enterprise
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
 	sh ./get-docker.sh
@@ -43,6 +43,22 @@ setup_consul() {
 	jq --arg token "${consul_acl_token}" '.acl += {"tokens":{"agent":"\($token)"}}' client.temp.1 > client.temp.2
 	jq '.ports = {"grpc":8502}' client.temp.2 > client.temp.3
 	jq '.bind_addr = "{{ GetPrivateInterfaces | include \"network\" \"'${vpc_cidr}'\" | attr \"address\" }}"' client.temp.3 > /etc/consul.d/client.json
+}
+
+setup_vault() {
+	mkdir -p /etc/vault.d
+
+	sudo chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	sudo chown root:vault /opt/vault/tls/vault-key.pem
+	sudo chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	sudo chmod 0640 /opt/vault/tls/vault-key.pem
+
+	echo "${vault_config}" | base64 -d > /etc/vault.d/vault.hcl
+}
+
+configure_consul_vault() {
+	echo "${vault_policy}" | base64 -d > /tmp/vault_service_policy.hcl
+	consul acl policy create -name vault-service -rules @/tmp/vault_service_policy.hcl}
 }
 
 setup_nginx() {
