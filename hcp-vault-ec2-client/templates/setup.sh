@@ -16,7 +16,7 @@ setup_deps () {
   apt update -qy
 	version="${consul_version}"
 	consul_package="consul-enterprise="$${version:1}"*"
-	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx vault-enterprise
+	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx vault
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
 	sh ./get-docker.sh
@@ -48,17 +48,17 @@ setup_consul() {
 setup_vault() {
 	mkdir -p /etc/vault.d
 
-	chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
-	chown root:vault /opt/vault/tls/vault-key.pem
-	chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
-	chmod 0640 /opt/vault/tls/vault-key.pem
+	#chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	#chown root:vault /opt/vault/tls/vault-key.pem
+	#chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
+	#chmod 0640 /opt/vault/tls/vault-key.pem
 
-	echo "${vault_config}" | base64 -d > /etc/vault.d/vault.hcl
+	#echo "${vault_config}" | base64 -d > /etc/vault.d/vault.hcl
 }
 
 configure_consul_vault() {
-	echo "${vault_policy}" | base64 -d > /tmp/vault_service_policy.hcl
-	consul acl policy create -name vault-service -rules @/tmp/vault_service_policy.hcl}
+	echo "${vault_policy}" | base64 -d > /etc/consul.d/vault_service_policy.hcl
+	# consul acl policy create -name vault-service -rules @/etc/consul.d/vault_service_policy.hcl
 }
 
 start_vault_service() {
@@ -84,15 +84,17 @@ setup_deps
 
 setup_nginx
 setup_consul
-setup_vault
-configure_consul_vault
 
 start_service "consul"
 start_service "nomad"
-start_vault_service
 
 # nomad and consul service is type simple and might not be up and running just yet.
 sleep 10
+
+# setup and configure the vault service which needs to happen after the consul service is running (a more through check to see if consul is up should be added)
+setup_vault
+configure_consul_vault
+start_vault_service
 
 nomad run hashicups.nomad
 
