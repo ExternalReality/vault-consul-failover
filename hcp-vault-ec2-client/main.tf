@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "allow_http_inbound" {
   security_group_id = var.security_group_id
 }
 
-resource "aws_instance" "nomad_host" {
+resource "aws_instance" "vault_host" {
   count                       = 1
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.medium"
@@ -64,12 +64,6 @@ resource "aws_instance" "nomad_host" {
         service_name = "consul",
         service_cmd  = "/usr/bin/consul agent -data-dir /var/consul -config-dir=/etc/consul.d/",
       })),
-      nomad_service = base64encode(templatefile("${path.module}/templates/service", {
-        service_name = "nomad",
-        service_cmd  = "/usr/bin/nomad agent -dev-connect -consul-token=${var.root_token}",
-      })),
-      hashicups  = base64encode(file("${path.module}/templates/hashicups.nomad")),
-      nginx_conf = base64encode(file("${path.module}/templates/nginx.conf")),
       vault_policy = base64encode(file("${path.module}/templates/vault-service-policy.hcl")),
       vault_config = base64encode(file("${path.module}/templates/vault.hcl")),
       vpc_cidr   = var.vpc_cidr
@@ -77,7 +71,7 @@ resource "aws_instance" "nomad_host" {
   })
 
   tags = {
-    Name = "${random_id.id.dec}-hcp-nomad-host"
+    Name = "${random_id.id.dec}-hcp-vault-host"
   }
 
   lifecycle {

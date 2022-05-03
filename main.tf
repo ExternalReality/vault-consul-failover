@@ -106,15 +106,3 @@ output "consul_url" {
     hcp_consul_cluster.main.consul_private_endpoint_url
   )
 }
-
-output "nomad_url" {
-  value = "http://${module.aws_ec2_consul_client.public_ip}:8081"
-}
-
-output "hashicups_url" {
-  value = "http://${module.aws_ec2_consul_client.public_ip}"
-}
-
-output "next_steps" {
-  value = "Hashicups Application will be ready in ~2 minutes. Use 'terraform output consul_root_token' to retrieve the root token."
-}

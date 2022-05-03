@@ -16,7 +16,7 @@ setup_deps () {
   apt update -qy
 	version="${consul_version}"
 	consul_package="consul-enterprise="$${version:1}"*"
-	apt install -qy apt-transport-https gnupg2 curl lsb-release nomad $${consul_package} getenvoy-envoy unzip jq apache2-utils nginx vault
+	apt install -qy apt-transport-https gnupg2 curl lsb-release $${consul_package} getenvoy-envoy unzip jq apache2-utils vault
 
 	curl -fsSL https://get.docker.com -o get-docker.sh
 	sh ./get-docker.sh
@@ -47,13 +47,17 @@ setup_consul() {
 
 setup_vault() {
 	mkdir -p /etc/vault.d
+	mkdir -p /opt/vault/data/raft
+    chown vault:vault /opt/vault/data/raft
 
 	#chown root:root /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
 	#chown root:vault /opt/vault/tls/vault-key.pem
 	#chmod 0644 /opt/vault/tls/vault-cert.pem /opt/vault/tls/vault-ca.pem
 	#chmod 0640 /opt/vault/tls/vault-key.pem
 
-	#echo "${vault_config}" | base64 -d > /etc/vault.d/vault.hcl
+	echo "${vault_config}" | base64 -d > vault.temp.0
+	export CONSUL_ACL_TOKEN=${consul_acl_token} 
+	envsubst < vault.temp.0 > /etc/vault.d/vault.hcl
 }
 
 configure_consul_vault() {
@@ -66,36 +70,21 @@ start_vault_service() {
 	systemctl start vault.service
 }
 
-setup_nginx() {
-	mkdir -p /etc/nginx/
-	echo "${consul_acl_token}" | htpasswd -i -c /etc/nginx/.htaccess nomad
-	echo "${nginx_conf}" | base64 -d > /etc/nginx/nginx.conf
-	systemctl restart nginx
-}
-
 cd /home/ubuntu/
-
 echo "${consul_service}" | base64 -d > consul.service
-echo "${nomad_service}" | base64 -d > nomad.service
-echo "${hashicups}" | base64 -d > hashicups.nomad
 
 setup_networking
 setup_deps
 
-setup_nginx
 setup_consul
-
 start_service "consul"
-start_service "nomad"
 
-# nomad and consul service is type simple and might not be up and running just yet.
+# consul service is type simple and might not be up and running just yet.
 sleep 10
 
 # setup and configure the vault service which needs to happen after the consul service is running (a more through check to see if consul is up should be added)
 setup_vault
 configure_consul_vault
 start_vault_service
-
-nomad run hashicups.nomad
 
 echo "done"
