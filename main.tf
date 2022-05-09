@@ -1,7 +1,7 @@
 locals {
-  vpc_region            = "us-west-2"
-  hvn_region            = "us-west-2"
-  cluster_id            = "consul-quickstart-1650985370768"
+  vpc_region_primary            = "us-west-2"
+  hvn_region_primary            = "us-west-2"
+  cluster_id_primary            = "consul-quickstart-1650985370768"
   hvn_id                = "consul-quickstart-1650985370768-hvn"
 }
 
@@ -22,7 +22,7 @@ terraform {
 }
 
 provider "aws" {
-  region = local.vpc_region
+  region = local.vpc_region_primary
   assume_role {
     role_arn = "arn:aws:iam::711129375688:role/consul-vault-failover"
   }
@@ -38,7 +38,7 @@ provider "consul" {
 resource "hcp_hvn" "main" {
   hvn_id         = local.hvn_id
   cloud_provider = "aws"
-  region         = local.hvn_region
+  region         = local.hvn_region_primary
   cidr_block     = "172.25.32.0/20"
 }
 
@@ -72,7 +72,7 @@ module "aws_hcp_consul" {
 }
 
 resource "hcp_consul_cluster" "main" {
-  cluster_id      = local.cluster_id
+  cluster_id      = local.cluster_id_primary
   hvn_id          = hcp_hvn.main.hvn_id
   public_endpoint = true
   tier            = "development"
