@@ -3,10 +3,10 @@ locals {
   vpc_region_secondary          = "us-east-1"
   hvn_region_primary            = "us-west-2"
   hvn_region_secondary          = "us-east-1"  
-  cluster_id_primary            = "consul-quickstart-1650985370768"
-  cluster_id_secondary          = "consul-quickstart-1652112078777"
-  hvn_id_primary                = "consul-quickstart-1650985370768-hvn"
-  hvn_id_secondary              = "consul-quickstart-1652112078777-hvn"
+  cluster_id_primary            = "primary"
+  cluster_id_secondary          = "secondary"
+  hvn_id_primary                = "us-west-2"
+  hvn_id_secondary              = "us-east-1"
 }
 
 
