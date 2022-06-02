@@ -62,8 +62,8 @@ terraform destroy
 
 ### References:
 
-Geo Failover with Consul: https://learn.hashicorp.com/tutorials/consul/automate-geo-failover
-Prepared Queries Docs: https://www.consul.io/api-docs/query 
-Article on Using `Dig` to show failover: https://www.devtech101.com/2017/08/31/using-consul-service-discovery-multiple-data-centers-part-2/
-Vault Consul Service Registration: https://www.vaultproject.io/docs/configuration/service-registration/consul
-Consul Chaos Engineering: https://learn.hashicorp.com/tutorials/consul/introduction-chaos-engineering?in=consul/resiliency
+* Geo Failover with Consul: https://learn.hashicorp.com/tutorials/consul/automate-geo-failover
+* Prepared Queries Docs: https://www.consul.io/api-docs/query 
+* Article on Using `Dig` to show failover: https://www.devtech101.com/2017/08/31/using-consul-service-discovery-multiple-data-centers-part-2/
+* Vault Consul Service Registration: https://www.vaultproject.io/docs/configuration/service-registration/consul
+* Consul Chaos Engineering: https://learn.hashicorp.com/tutorials/consul/introduction-chaos-engineering?in=consul/resiliency
